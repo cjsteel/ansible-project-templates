@@ -1,0 +1,9 @@
+# temp files
+*~
+
+.private
+.prv
+*.retry
+.vault
+ansible.log
+.vagrant

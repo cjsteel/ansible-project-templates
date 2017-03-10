@@ -1,0 +1,16 @@
+# roles/freesurfer/tests/vagrant.yml
+---
+- hosts: all
+  remote_user: vagrant
+  sudo: true
+  roles:
+    - ../../
+
+  vars:
+
+    - freesurfer_ver  : '1.0.2-2'
+    - freesurfer_arch : '{{ ansible_architecture }}'
+    - freesurfer_pkg  : 'libxp6_{{ freesurfer_ver }}_{{ freesurfer_arch }}.deb'
+    - freesurfer_deb_url  : 'http://mirrors.kernel.org/ubuntu/pool/main/libx/libxp/{{ freesurfer_pkg }}'
+  
+

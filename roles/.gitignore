@@ -1,0 +1,16 @@
+# temp files
+*~
+
+# private files
+.private
+.prv
+*.retry
+.vault
+ansible.log
+
+# directories
+
+.vagrant
+group_vars/*
+host_vars/*
+roles/*
