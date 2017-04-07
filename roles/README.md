@@ -1,4 +1,5 @@
-ansible-role-freesurfer
+
+ansible-role-{{ short_role_name }}
 =======================
 
 An Ansible role to install and manage ANFI (Analysis of Functional NeuroImages)
@@ -7,18 +8,17 @@ An Ansible role to install and manage ANFI (Analysis of Functional NeuroImages)
 Description
 -----------
 
-"**FreeSurfer** is a brain imaging software package developed by the Athinoula A. Martinos Center for Biomedical Imaging at Massachusetts General Hospital for analyzing magnetic resonance imaging (MRI) scan data.
+"**{{ short_role_name }}** is a brain imaging software package developed by ...
 
-It is an important tool in functional brain mapping and facilitates the visualization of the functional regions of the highly folded cerebral cortex.
-
-It contains tools to conduct both volume based and surface based analysis, which primarily use the white matter surface. FreeSurfer includes tools for the reconstruction of topologically correct and geometrically accurate models of both the gray/white and pial surfaces, for measuring cortical thickness, surface area and folding, and for computing inter-subject registration based on the pattern of cortical folds. In addition, an automated labeling of 35 non-cortical regions is included in the package."
 
 Resources
 ---------
 
--  http://www.freesurfer.net/ 
--  http://www.freesurfer.net/fswiki/DownloadAndInstall 
--  https://en.wikipedia.org/wiki/FreeSurfer 
+-  http://www.{{ short_role_name }}.net/ 
+-  http://www.{{ short_role_name }}.net/fswiki/DownloadAndInstall 
+-  https://en.wikipedia.org/wiki/{{ short_role_name }} 
+
+
 
 Requirements
 ------------
@@ -29,10 +29,12 @@ Requirements
 sudo apt-get install libjpeg62
 ```
 
+
 Options
 -------
 
 - Matlab (only needed to run FS-FAST, the fMRI analysis stream)
+
 
 Issues
 ------
@@ -43,30 +45,32 @@ On Ubuntu platforms, you may encounter the error "freeview.bin: error while load
 sudo apt-get install libjpeg62-dev
 ```
 
+
 Role Variables
 --------------
 
-### roles/freesurfer/defaults/main.yml
+### roles/{{ short_role_name }}/defaults/main.yml
 
 ```yaml
-# file: roles/freesurfer/defaults/main.yml
+# file: roles/{{ short_role_name }}/defaults/main.yml
 #
-freesurfer_arch : 'amd64'
-freesurfer_ver  : 'v6.0.0'
-freesurfer_ftp_url: 'ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz'
+{{ short_role_name }}_arch : 'amd64'
+{{ short_role_name }}_ver  : 'v6.0.0'
+{{ short_role_name }}_ftp_url: 'ftp://surfer.nmr.mgh.harvard.edu/pub/dist/{{ short_role_name }}/6.0.0/{{ short_role_name }}-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz'
 
-# FreeSurfer/FS-FAST (and FSL) environment variables
+# {{ short_role_name }}/FS-FAST (and FSL) environment variables
 
-freesurfer_home          : '/usr/local/freesurfer'
-freesurfer_fsfast_home   : '/usr/local/freesurfer/fsfast'
-freesurfer_output_format : 'nii.gz'
-freesurfer_subjects_dir	 : '/usr/local/freesurfer/subjects'
-freesurfer_mni_dir		 : '/usr/local/freesurfer/mni'
+{{ short_role_name }}_home          : '/usr/local/{{ short_role_name }}'
+{{ short_role_name }}_fsfast_home   : '/usr/local/{{ short_role_name }}/fsfast'
+{{ short_role_name }}_output_format : 'nii.gz'
+{{ short_role_name }}_subjects_dir	 : '/usr/local/{{ short_role_name }}/subjects'
+{{ short_role_name }}_mni_dir		 : '/usr/local/{{ short_role_name }}/mni'
 
 # testing 
-freesurfer_users_test_dir: '~/freesurfer/test'
-freesurfer_subject_samples: 'sample-001.mgz'
+{{ short_role_name }}_users_test_dir: '~/{{ short_role_name }}/test'
+{{ short_role_name }}_subject_samples: 'sample-001.mgz'
 ```
+
 
 Dependencies
 ------------
@@ -79,25 +83,25 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
 ### ensure_dirs
 
-#### roles/ansible-role-freesurfer/meta/main.yml
+#### roles/ansible-role-{{ short_role_name }}/meta/main.yml
 
 ```yaml
 ---
-# file: roles/ansible-role-freesurfer/meta/main.yml in dependant role
+# file: roles/ansible-role-{{ short_role_name }}/meta/main.yml in dependant role
 dependencies:
 
 - { role: ensure_dirs, 
-        ensure_dirs_on_remote: "{{ freesurfer_remote_directories_description }}",
-        ensure_dirs_on_local : "{{ freesurfer_local_directories_description }}"
+        ensure_dirs_on_remote: "{{ {{ short_role_name }}_remote_directories_description }}",
+        ensure_dirs_on_local : "{{ {{ short_role_name }}_local_directories_description }}"
   }
 ```
 
-#### roles/ansible-role-freesurfer/defaults/main.yml example
+#### roles/ansible-role-{{ short_role_name }}/defaults/main.yml example
 
 ```yaml
-freesurfer_remote_directories_description:
+{{ short_role_name }}_remote_directories_description:
 
-  freesurfer_installation_resources_dir:
+  {{ short_role_name }}_installation_resources_dir:
 
     state       : "present"					# absent
     path        : "sys/sw"					# relative to Ansible users home
@@ -105,9 +109,9 @@ freesurfer_remote_directories_description:
     group       : "{{ ansible_ssh_user }}"
     mode        : "0644"
 
-freesurfer_local_directories_description:
+{{ short_role_name }}_local_directories_description:
 
-  freesurfer_installation_resources_dir:
+  {{ short_role_name }}_installation_resources_dir:
 
     state       : "present"					# absent
     path        : "sys/sw/" 				# relative to Ansible users home dir
@@ -115,6 +119,7 @@ freesurfer_local_directories_description:
     group       : "{{ ansible_ssh_user }}"
     mode        : "0644"
 ```
+
 
 Example Playbook
 ----------------
@@ -124,24 +129,33 @@ Including an example of how to use your role (for instance, with variables passe
 ```yaml
     - hosts: servers
       roles:
-         - { role: cjsteel.ansible-role-freesurfer, x: 42 }
+         - { role: cjsteel.ansible-role-{{ short_role_name }}, x: 42 }
 ```
 
-License
--------
 
-MIT
 
-Author Information
-------------------
+## License
 
-Christopher Steel
-Systems Administrator
-McGill Centre for Integrative Neuroscience
-Montreal Neurological Institute
-McGill University
-3801 University Street
-Montréal, QC, Canada H3A 2B4
-Tel. No. +1 514 398-2494
-E-mail: christopherDOTsteel@mcgill.ca
-[MCIN](http://mcin-cnim.ca/), [theneuro.ca](http://theneuro.ca)
+Various, MIT
+
+
+
+## Author Information
+
+Christopher Steel on behalf of ACElabs  
+Systems Administrator  
+McGill Centre for Integrative Neuroscience  
+Montreal Neurological Institute  
+E-mail: christopherDOTsteel@mcgill.ca  
+[mcin-cnim.ca](http://mcin-cnim.ca/)  
+[theneuro.ca](http://www.mcgill.ca/neuro/)  
+
+
+
+## Open Science
+
+The Neuro has adopted the principles of Open Science. We are inspired by the likes of the Allen Institute for Brain Science, the National Institutes of Health's Human Connectome project, and the Human Genome project. For additional information please see [open science at the neuro]( https://www.mcgill.ca/neuro/open-science-0).
+
+
+
+![MCIN](imgs/mcin-logo-brain-140x116.png)          ![neuro](imgs/neuro-logo-160x116.png)  

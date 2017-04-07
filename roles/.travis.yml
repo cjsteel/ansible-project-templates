@@ -1,5 +1,5 @@
 ---
-# file: roles/freesurfer/.travis.yml
+# file: roles/{{ short_role_name }}/.travis.yml
 language: python
 python: "2.7"
 

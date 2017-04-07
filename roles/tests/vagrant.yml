@@ -1,16 +1,39 @@
-# roles/freesurfer/tests/vagrant.yml
 ---
+# file: roles/{{ short_role_name }}/tests/vagrant.yml
+
 - hosts: all
-  remote_user: vagrant
-  sudo: true
-  roles:
-    - ../../
+  remote_user: ubuntu
+  become: false # or local directory creation will fail
+  pre_tasks:
+
+    - set_fact: fact_controller_user="{{ lookup('env','USER') }}"
+    - debug: var=fact_controller_user
+
+    - set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
+    - debug: var=fact_controller_home
 
   vars:
 
-    - freesurfer_ver  : '1.0.2-2'
-    - freesurfer_arch : '{{ ansible_architecture }}'
-    - freesurfer_pkg  : 'libxp6_{{ freesurfer_ver }}_{{ freesurfer_arch }}.deb'
-    - freesurfer_deb_url  : 'http://mirrors.kernel.org/ubuntu/pool/main/libx/libxp/{{ freesurfer_pkg }}'
+    - {{ short_role_name }}_remote_user : 'ubuntu'
+
+
+    - {{ short_role_name }}_state         : 'present'
+    - {{ short_role_name }}_build         : false
+    - {{ short_role_name }}_reboot_target : false
+
+
+    - {{ short_role_name }}_git_version        : 'v2.1.0'
+    - {{ short_role_name }}_git_url            : 'git://github.com/stnava/{{ short_role_name }}.git'
+    - {{ short_role_name }}_dir_path           : '~/bin/{{ short_role_name }}'
+    - {{ short_role_name }}_src_path           : '~/src/{{ short_role_name }}'
+
+    - {{ short_role_name }}_directory_state    : 'directory'
+    - {{ short_role_name }}_owner              : '{{ short_role_name }}_remote_user }}'
+    - {{ short_role_name }}_group              : '{{ short_role_name }}_remote_user }}'
+    - {{ short_role_name }}_mode               : '0755'
+
+  roles:
+    - ../../
+
   
 
