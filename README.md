@@ -19,10 +19,10 @@ Templates and non-templated files for Ansible projects
 ### ace_templates/roles/
 
 ```shell
-.gitignore_roles
+.gitignore
 README.md
 .travis.yml
-Vagrantfile_roles
+Vagrantfile
 ```
 
 ### ace_templates/roles/tests
@@ -39,6 +39,9 @@ vagrant.yml
 
 Various, MIT
 
+
+
+
 Author Information
 ------------------
 
@@ -47,14 +50,16 @@ Systems Administrator
 McGill Centre for Integrative Neuroscience  
 Montreal Neurological Institute  
 E-mail: christopherDOTsteel@mcgill.ca  
-[mcin-cnim.ca](http://mcin-cnim.ca/)  
-[theneuro.ca](http://www.mcgill.ca/neuro/)  
-
-
+[mcin-cnim.ca](http://mcin-cnim.ca/)    
+[theneuro.ca](http://www.mcgill.ca/neuro/)   
 
 ## Open Science
 
+
+
 The Neuro has adopted the principles of Open Science. We are inspired by the likes of the Allen Institute for Brain Science, the National Institutes of Health's Human Connectome project, and the Human Genome project. For additional information please see [open science at the neuro]( https://www.mcgill.ca/neuro/open-science-0).
+
+
 
 
 
