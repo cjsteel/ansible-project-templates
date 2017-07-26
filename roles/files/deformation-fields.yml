@@ -1,0 +1,31 @@
+---
+# file: project_name/deformation_fields.yml
+
+- hosts: deformation_fields
+  become: false
+  gather_facts: true
+  pre_tasks:
+
+    - set_fact: fact_controller_user="{{ lookup('env','USER') }}"
+    - debug: var=fact_controller_user
+
+    - set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
+    - debug: var=fact_controller_home
+
+#    - set_fact: fact_role_name="{{ lookup('env','ANSIBLE_ROLE_NAME') }}"
+#    - debug: var=fact_role_name
+
+    - set_fact: fact_role_name="{{ lookup('pipe','pwd')|dirname|basename }}"
+    - debug: var=fact_role_name2
+
+    - set_fact: fact_role_path="{{ lookup('pipe','pwd')|dirname }}"
+    - debug: var=fact_role_path
+
+  roles:
+
+    - { role: deformation_fields, deformation_fields_state: 'absent', deformation_fields_ver: '2.0.3' }
+    - { role: deformation_fields, deformation_fields_state: 'present', deformation_fields_ver: '2.6.2' }
+  
+#    - { role: cjsteel.ansible-role-deformation_fields, deformation_fields_state: 'absent', deformation_fields_ver: '2.0.3' }
+#    - { role: cjsteel.ansible-role-deformation_fields, deformation_fields_state: 'present', deformation_fields_ver: '2.6.2' }
+

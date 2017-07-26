@@ -1,10 +1,11 @@
 ---
-# file: roles/{{ short_role_name }}/tests/vagrant.yml
+# file: roles/clone/tests/vagrant.yml
 
 - hosts: all
   remote_user: ubuntu
   become: false # or local directory creation will fail
   pre_tasks:
+
 
     - set_fact: fact_controller_user="{{ lookup('env','USER') }}"
     - debug: var=fact_controller_user
@@ -12,25 +13,27 @@
     - set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
     - debug: var=fact_controller_home
 
+    - set_fact: fact_role_path="{{ lookup('pipe','pwd')|dirname }}"
+    - debug: var=fact_role_path
+
+    - set_fact: fact_role_name="{{ lookup('pipe','pwd')|dirname|basename }}"
+    - debug: var=fact_role_name2
+
   vars:
 
-    - {{ short_role_name }}_remote_user : 'ubuntu'
+    - clone_remote_user : 'ubuntu'
 
 
-    - {{ short_role_name }}_state         : 'present'
-    - {{ short_role_name }}_build         : false
-    - {{ short_role_name }}_reboot_target : false
+    - clone_state         : 'present'
+    - clone_build         : false
+    - clone_reboot_target : false
 
 
-    - {{ short_role_name }}_git_version        : 'v2.1.0'
-    - {{ short_role_name }}_git_url            : 'git://github.com/stnava/{{ short_role_name }}.git'
-    - {{ short_role_name }}_dir_path           : '~/bin/{{ short_role_name }}'
-    - {{ short_role_name }}_src_path           : '~/src/{{ short_role_name }}'
-
-    - {{ short_role_name }}_directory_state    : 'directory'
-    - {{ short_role_name }}_owner              : '{{ short_role_name }}_remote_user }}'
-    - {{ short_role_name }}_group              : '{{ short_role_name }}_remote_user }}'
-    - {{ short_role_name }}_mode               : '0755'
+    - clone_git_version        : 'v2.1.0'
+    - clone_git_url            : 'git://github.com/stnava/clone.git'
+    - clone_git_parent_dir     : '~/bin'
+    - clone_git_target_dir     : 'acemenu'
+    - clone_git_target_path    : '~/bin/acemenu'
 
   roles:
     - ../../

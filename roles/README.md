@@ -1,108 +1,182 @@
 
-ansible-role-{{ short_role_name }}
+ansible-role-{{ short-role-name }}
 =======================
 
-An Ansible role to install and manage ANFI (Analysis of Functional NeuroImages)
+An Ansible role to install and manage **{{ short-role-name }}**
 
 
 Description
 -----------
 
-"**{{ short_role_name }}** is a brain imaging software package developed by ...
+Very Rough Draft
+
+## Notes
+
+You may want to remove / uninstall older versions before installing newer ones.
 
 
 Resources
 ---------
 
--  http://www.{{ short_role_name }}.net/ 
--  http://www.{{ short_role_name }}.net/fswiki/DownloadAndInstall 
--  https://en.wikipedia.org/wiki/{{ short_role_name }} 
-
-
+-  https://{{ short-role-name }}.com/
 
 Requirements
 ------------
 
-### Ubuntu 16.04
+Controller
+----------
+
+### Controller preparation
+
+#### Setup ssh agent
 
 ```shell
-sudo apt-get install libjpeg62
+eval `/usr/bin/ssh-agent -s`
+/usr/bin/ssh-add
 ```
 
+#### test connectivity
 
-Options
--------
-
-- Matlab (only needed to run FS-FAST, the fMRI analysis stream)
-
-
-
-Issues
-------
-
-On Ubuntu platforms, you may encounter the error "freeview.bin: error while loading shared libraries: libjpeg.so.62: cannot open shared object file: No such file or directory." Freeview will work fine if you install libjpeg62-dev and run: 
+#### remove any stale keys
 
 ```shell
-sudo apt-get install libjpeg62-dev
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R workstation-001
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R 192.168.11.22
 ```
 
+#### Confirm connectivity
 
-Role Variables
---------------
+### Ansible command example
 
-### roles/{{ short_role_name }}/defaults/main.yml
+```shell
+ansible-playbook systems.yml -i inventory/dev --ask-vault-pass -v --limit workstation-001
+```
+
+## Options
+
+## Issues
+
+## Role Variables
+
+
+### roles/{{ short-role-name }}/defaults/main.yml
 
 ```yaml
-# file: roles/{{ short_role_name }}/defaults/main.yml
+---
+# file: roles/{{ short-role-name }}/defaults/main.yml
 #
-{{ short_role_name }}_arch : 'amd64'
-{{ short_role_name }}_ver  : 'v6.0.0'
-{{ short_role_name }}_ftp_url: 'ftp://surfer.nmr.mgh.harvard.edu/pub/dist/{{ short_role_name }}/6.0.0/{{ short_role_name }}-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz'
 
-# {{ short_role_name }}/FS-FAST (and FSL) environment variables
+# Requirements
+#
+# set the value of project_deployment_user_name in your projects group_vars/all/defaults.yml
+#
+# ---
+# file: group_vars/all/defaults.yml
+#
+# project_deployment_user_name: 'deployment_user_name'
 
-{{ short_role_name }}_home          : '/usr/local/{{ short_role_name }}'
-{{ short_role_name }}_fsfast_home   : '/usr/local/{{ short_role_name }}/fsfast'
-{{ short_role_name }}_output_format : 'nii.gz'
-{{ short_role_name }}_subjects_dir	 : '/usr/local/{{ short_role_name }}/subjects'
-{{ short_role_name }}_mni_dir		 : '/usr/local/{{ short_role_name }}/mni'
+{{ short-role-name }}_controller_home   : '{{ fact_controler_home }}'
+{{ short-role-name }}_remote_user       : '{{ project_deployment_user_name }}'
+{{ short-role-name }}_remote_users_home : '/home/users/{{ {{ short-role-name }}_remote_user }}'
 
-# testing 
-{{ short_role_name }}_users_test_dir: '~/{{ short_role_name }}/test'
-{{ short_role_name }}_subject_samples: 'sample-001.mgz'
+# probably set in this or a dependent role
+
+{{ short-role-name }}_state             : 'absent' # 'present' # 'absent'
+#{{ short-role-name }}_installation_type : 'local' # 'url'
+{{ short-role-name }}_app_name          : '{{ short-role-name }}'
+{{ short-role-name }}_package_name      : '{{ short-role-name }}-desktop'
+{{ short-role-name }}_ver               : '2.0.3' #'2.6.2' # 2.0.3
+{{ short-role-name }}_arch              : 'amd64'
+{{ short-role-name }}_package_type      : 'deb'
+
+# calculated vars
+
+# example below builds "{{ short-role-name }}-desktop-2.6.2-amd64.deb"
+{{ short-role-name }}_package_filename  : '{{ {{ short-role-name }}_package_name }}-{{ {{ short-role-name }}_ver }}-{{ {{ short-role-name }}_arch }}.{{ {{ short-role-name }}_package_type }}'
+{{ short-role-name }}_controller_package_path : '{{ fact_controller_home }}/src/Ubuntu/16.04/{{ short-role-name }}/{{ {{ short-role-name }}_ver }}/{{ {{ short-role-name }}_package_filename }}'
+
+{{ short-role-name }}_taget_node_package_dir  : '{{ {{ short-role-name }}_remote_users_home }}/src/Ubuntu/16.04/{{ short-role-name }}/{{ {{ short-role-name }}_ver }}'
+{{ short-role-name }}_taget_node_package_path : '{{ {{ short-role-name }}_taget_node_package_dir }}/{{ {{ short-role-name }}_package_filename }}'
+```
+
+### roles/{{ short-role-name }}/tests/vagrant.yml
+
+```shell
+---
+# file: roles/{{ short_role_name }}/tests/vagrant.yml
+
+- hosts: all
+  remote_user: ubuntu
+  become: false # or local directory creation will fail
+  pre_tasks:
+
+    - set_fact: fact_controller_user="{{ lookup('env','USER') }}"
+    - debug: var=fact_controller_user
+
+    - set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
+    - debug: var=fact_controller_home
+
+  vars:
+
+    - {{ short-role-name }}_controller_home   : '{{ fact_controler_home }}'
+    - {{ short-role-name }}_remote_user       : 'ubuntu'
+    - {{ short-role-name }}_remote_users_home : '/home/ubuntu'
+
+# probably set in this or a dependent role
+
+    - {{ short-role-name }}_state                   : 'absent' # 'present' # 'absent'
+#    - {{ short-role-name }}_installation_type       : 'local' # 'url'
+    - {{ short-role-name }}_app_name                : '{{ short-role-name }}'
+    - {{ short-role-name }}_package_name            : '{{ short-role-name }}-desktop'
+    - {{ short-role-name }}_ver                     : '2.0.3' #'2.6.2' # 2.0.3
+    - {{ short-role-name }}_arch                    : 'amd64'
+    - {{ short-role-name }}_package_type            : 'deb'
+    # example below builds "{{ short-role-name }}-desktop-2.6.2-amd64.deb"
+    - {{ short-role-name }}_package_filename        : '{{ {{ short-role-name }}_package_name }}-{{ {{ short-role-name }}_ver }}-{{ {{ short-role-name }}_arch }}.{{ {{ short-role-name }}_package_type }}'
+
+    - {{ short-role-name }}_controller_package_path : '{{ fact_controller_home }}/src/Ubuntu/16.04/{{ short-role-name }}/{{ {{ short-role-name }}_ver }}/{{ {{ short-role-name }}_package_filename }}'
+
+    - {{ short-role-name }}_taget_node_package_dir  : '{{ {{ short-role-name }}_remote_users_home }}/src/Ubuntu/16.04/{{ short-role-name }}/{{ {{ short-role-name }}_ver }}'
+    - {{ short-role-name }}_taget_node_package_path : '{{ {{ short-role-name }}_taget_node_package_dir }}/{{ {{ short-role-name }}_package_filename }}'
+
+  roles:
+    - ../../
 ```
 
 
-Dependencies
+
+NOT IN USE AT THIS TIME - Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles. Examples:
 
 * [ ansible-role-acemenu ]( https://github.com/cjsteel/ansible-role-acemenu )
 * [ ansible-role-ensure_dirs ]( https://github.com/csteel/ansible-role-ensure_dirs )
 * [ ansible-role-skel ]( https://github.com/csteel/ansible-role-skel )
 
-### ensure_dirs
+### NOT IN USE AT THIS TIME  - ensure_dirs
 
-#### roles/ansible-role-{{ short_role_name }}/meta/main.yml
+#### NOT IN USE AT THIS TIME - roles/ansible-role-{{ short-role-name }}/meta/main.yml
 
 ```yaml
 ---
-# file: roles/ansible-role-{{ short_role_name }}/meta/main.yml in dependant role
+# file: roles/ansible-role-{{ short-role-name }}/meta/main.yml in dependant role
 dependencies:
 
 - { role: ensure_dirs, 
-        ensure_dirs_on_remote: "{{ {{ short_role_name }}_remote_directories_description }}",
-        ensure_dirs_on_local : "{{ {{ short_role_name }}_local_directories_description }}"
+        ensure_dirs_on_remote: "{{ {{ short-role-name }}_remote_directories_description }}",
+        ensure_dirs_on_local : "{{ {{ short-role-name }}_local_directories_description }}"
   }
 ```
 
-#### roles/ansible-role-{{ short_role_name }}/defaults/main.yml example
+#### NOT IN USE AT THIS TIME 
+
+#### roles/ansible-role-{{ short-role-name }}/defaults/main.yml example
 
 ```yaml
-{{ short_role_name }}_remote_directories_description:
+{{ short-role-name }}_remote_directories_description:
 
-  {{ short_role_name }}_installation_resources_dir:
+  {{ short-role-name }}_installation_resources_dir:
 
     state       : "present"					# absent
     path        : "sys/sw"					# relative to Ansible users home
@@ -110,9 +184,9 @@ dependencies:
     group       : "{{ ansible_ssh_user }}"
     mode        : "0644"
 
-{{ short_role_name }}_local_directories_description:
+{{ short-role-name }}_local_directories_description:
 
-  {{ short_role_name }}_installation_resources_dir:
+  {{ short-role-name }}_installation_resources_dir:
 
     state       : "present"					# absent
     path        : "sys/sw/" 				# relative to Ansible users home dir
@@ -121,25 +195,76 @@ dependencies:
     mode        : "0644"
 ```
 
-
-Example Playbook
-----------------
+## role playbook example
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
+### project_name/{{ short-role-name }}.yml
+
 ```yaml
-    - hosts: servers
-      roles:
-         - { role: cjsteel.ansible-role-{{ short_role_name }}, x: 42 }
+---
+# file: project_name/ants.yml
+
+- hosts: {{ short-role-name }}
+  become: false
+  gather_facts: true
+  pre_tasks:
+
+    - set_fact: fact_controller_user="{{ lookup('env','USER') }}"
+    - debug: var=fact_controller_user
+
+    - set_fact: fact_controller_home="{{ lookup('env','HOME') }}"
+    - debug: var=fact_controller_home
+
+  roles:
+
+    - { role: {{ short-role-name }}, {{ short-role-name }}_state: 'absent', {{ short-role-name }}_ver: '2.0.3' }
+    - { role: {{ short-role-name }}, {{ short-role-name }}_state: 'present', {{ short-role-name }}_ver: '2.6.2' }
+
+#    - { role: cjsteel.ansible-role-{{ short-role-name }}, {{ short-role-name }}_state: 'absent', {{ short-role-name }}_ver: '2.0.3' }
+#    - { role: cjsteel.ansible-role-{{ short-role-name }}, {{ short-role-name }}_state: 'present', {{ short-role-name }}_ver: '2.6.2' }
+```
+
+## main playbook example
+
+### project_name/systems.yml
+
+```yaml
+---
+- hosts: all
+  become: false
+
+- include: deployment_user.yml
+
+- include: shorewall.yml
+
+- include: ldap.yml
+
+- include: workstation.yml
+
+- include: {{ short-role-name }}.yml
+...
+```
+
+## Ansible command examples
+
+### without sudo
+
+```shell
+ansible-playbook -i inventory/dev systems.yml --limit ace-ws-77
+```
+
+### with sudo
+
+```shell
+ansible-playbook -i inventory/dev systems.yml --limit ace-ws-77 --ask-become-pass
 ```
 
 
 
 ## License
 
-Various, MIT
-
-
+MIT
 
 ## Author Information
 
@@ -153,11 +278,7 @@ E-mail: christopherDOTsteel@mcgill.ca
 
 ## Open Science
 
-
-
-The Neuro has adopted the principles of Open Science. We are inspired by the likes of the Allen Institute for Brain Science, the National Institutes of Health's Human Connectome project, and the Human Genome project. For additional information please see [open science at the neuro]( https://www.mcgill.ca/neuro/open-science-0).
-
-
+The Montreal Neurological Institute has adopted the principles of Open Science. We are inspired by the likes of the Allen Institute for Brain Science, the National Institutes of Health's Human Connectome project, and the Human Genome project. For additional information please see [open science at the neuro]( https://www.mcgill.ca/neuro/open-science-0).
 
 
 
